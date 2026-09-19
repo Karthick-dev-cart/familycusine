@@ -1,0 +1,21 @@
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	encode zstd gzip
+
+	root * /srv
+	# SPA fallback — replaces the .htaccess rewrite Hostinger provided.
+	try_files {path} /index.html
+	file_server
+
+	# Hashed Vite assets are immutable.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=604800, immutable"
+
+	# index.html must never be cached, or deploys won't take effect.
+	@html path / /index.html
+	header @html Cache-Control "no-cache"
+}
